@@ -2,7 +2,7 @@
 
 Source code and experimental datasets for the paper:
 
-> **Telemetry-Driven Continuous Re-Verification for IoT Devices: A Deterministic Framework Evaluated on an ESP32-C6**
+> **Continuous Authentication Framework for IoT Devices**
 > Fahim Rahman, Manesh Thankappan, Danial Javaheri, Muhsin Hassanu, Raja Ujjan
 > *Sensors*, MDPI, 2026.
 
@@ -155,7 +155,7 @@ If you use this code or dataset in your research, please cite:
 
 ```bibtex
 @article{rahman2026continuous,
-  title={Telemetry-Driven Continuous Re-Verification for IoT Devices: A Deterministic Framework Evaluated on an ESP32-C6},
+  title={Continuous Authentication Framework for IoT Devices},
   author={Rahman, Fahim and Thankappan, Manesh and Javaheri, Danial and Hassanu, Muhsin and Ujjan, Raja},
   journal={Sensors},
   year={2026},
