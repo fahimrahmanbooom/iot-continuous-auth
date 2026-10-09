@@ -23,3 +23,5 @@ utc,server_ts,event,detail
 2026-10-09T16:15:29.726+00:00,1791562529.727,replay,"{""http_status"": 200, ""replayed_seq"": 13, ""replayed_uptime_ms"": 95167, ""response"": {""challenge"": {""nonce"": ""9aa673c13aa0c567ecb8ef741d4648e3""}, ""score"": 0.8901, ""state"": ""challenged"", ""status"": ""ok""}}"
 2026-10-09T16:16:45.279+00:00,1791562605.279,reboot,"{""method"": ""usb_rts_reset"", ""port"": ""/dev/cu.usbmodem14201""}"
 2026-10-09T16:20:01.000+00:00,1791562801.78,collection_end,"{""reason"": ""end of physical session""}"
+2026-10-09T17:02:43.000+00:00,1791565363.72,nominal_run2_start,"{""note"": ""additional 10-min nominal run, final event-phase code""}"
+2026-10-09T17:13:19.000+00:00,1791565999.646,nominal_run2_end,"{""note"": ""end of additional 10-min nominal run""}"

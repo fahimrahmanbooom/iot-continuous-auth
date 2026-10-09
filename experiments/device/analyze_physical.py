@@ -62,6 +62,13 @@ def main():
         row["t"] = float(row["server_ts"])
     all_events = read_csv(ARCHIVE / "physical_events.csv") if (
         ARCHIVE / "physical_events.csv").exists() else []
+    # The event session ends at the logged collection end; the later nominal
+    # run is analyzed separately (nominal_run2_decisions.csv).
+    end = next((float(e["server_ts"]) for e in all_events
+                if e["event"] == "collection_end"), None)
+    if end is not None:
+        rows = [r for r in rows if r["t"] <= end]
+        all_events = [e for e in all_events if float(e["server_ts"]) <= end]
     tests = ("reboot", "replay", "replay_forged")
     events = [e for e in all_events if e["event"] in tests]
     markers = [float(e["server_ts"]) for e in all_events]

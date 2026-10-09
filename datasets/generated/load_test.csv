@@ -1,0 +1,5 @@
+emulated_devices,offered_rate_msg_s,duration_s,messages_ok,errors,throughput_msg_s,decisions_logged,latency_p50_ms,latency_p95_ms,latency_max_ms,server_cpu_pct,server_rss_start_mb,server_rss_peak_mb
+10,2.0,65.3,124,0,1.9,124,6.9,9.0,15.9,0.8,35.5,35.9
+50,10.0,65.5,606,0,9.3,606,7.5,9.3,156.8,4.1,36.8,37.8
+100,20.0,65.3,1208,0,18.5,1208,6.2,8.0,25.8,7.0,35.6,36.8
+200,40.0,65.4,2420,0,37.0,2420,6.4,8.7,50.8,15.2,36.1,37.4
