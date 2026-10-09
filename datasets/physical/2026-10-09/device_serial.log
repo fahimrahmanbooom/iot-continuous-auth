@@ -1,0 +1,68 @@
+2026-10-09T14:58:14.129+00:00 Build:Sep 19 2022
+2026-10-09T14:58:14.131+00:00 rst:0x15 (USB_UART_HPSYS),boot:0x1c (SPI_FAST_FLASH_BOOT)
+2026-10-09T14:58:14.131+00:00 Saved PC:0x4080550e
+2026-10-09T14:58:14.131+00:00 SPIWP:0xee
+2026-10-09T14:58:14.131+00:00 mode:DIO, clock div:2
+2026-10-09T14:58:14.134+00:00 load:0x40875730,len:0x1278
+2026-10-09T14:58:14.136+00:00 load:0x4086b910,len:0xc58
+2026-10-09T14:58:14.139+00:00 load:0x4086e610,len:0x31c0
+2026-10-09T14:58:14.141+00:00 entry 0x4086b910
+2026-10-09T14:58:15.388+00:00 
+2026-10-09T14:58:15.388+00:00 === IoT Continuous Authentication - Telemetry Firmware ===
+2026-10-09T14:58:15.389+00:00 Device ID : esp32-lab-01
+2026-10-09T14:58:15.389+00:00 Server    : https://172.20.10.2:5443/api/telemetry
+2026-10-09T14:58:15.389+00:00 Interval  : 5000 ms
+2026-10-09T14:58:45.978+00:00 Connecting to Wi-Fi.............................................................
+2026-10-09T14:58:49.371+00:00 Will retry in loop.
+2026-10-09T14:58:49.373+00:00 [WiFi] Reconnecting...
+2026-10-09T14:58:54.379+00:00 [WiFi] Reconnecting...
+2026-10-09T14:58:59.388+00:00 [WiFi] Reconnecting...
+2026-10-09T14:59:04.397+00:00 [WiFi] Reconnecting...
+2026-10-09T14:59:09.406+00:00 [WiFi] Reconnecting...
+2026-10-09T14:59:14.415+00:00 [WiFi] Reconnecting...
+2026-10-09T14:59:19.424+00:00 [WiFi] Reconnecting...
+2026-10-09T14:59:28.206+00:00 [Telemetry] seq=0 rssi=-51 inet=2 heap=316620 lat=3258 jitter=30064
+2026-10-09T14:59:34.253+00:00 [Telemetry] seq=1 rssi=-50 inet=2 heap=316036 lat=461 jitter=3778
+2026-10-09T14:59:40.171+00:00 [Telemetry] seq=2 rssi=-50 inet=2 heap=315780 lat=420 jitter=1046
+2026-10-09T14:59:46.355+00:00 [Telemetry] seq=3 rssi=-19 inet=2 heap=315524 lat=443 jitter=919
+2026-10-09T14:59:52.954+00:00 [Telemetry] seq=4 rssi=-49 inet=2 heap=315268 lat=419 jitter=1183
+2026-10-09T14:59:59.497+00:00 [Telemetry] seq=5 rssi=-47 inet=2 heap=314752 lat=1002 jitter=1599
+2026-10-09T15:00:05.759+00:00 [Telemetry] seq=6 rssi=-49 inet=2 heap=314760 lat=649 jitter=1544
+2026-10-09T15:00:12.479+00:00 [Telemetry] seq=7 rssi=-47 inet=2 heap=314244 lat=453 jitter=1262
+2026-10-09T15:00:18.440+00:00 [Telemetry] seq=8 rssi=-47 inet=2 heap=313728 lat=457 jitter=1719
+2026-10-09T15:00:24.611+00:00 [Telemetry] seq=9 rssi=-47 inet=2 heap=313728 lat=412 jitter=961
+2026-10-09T15:00:30.603+00:00 [Telemetry] seq=10 rssi=-47 inet=2 heap=313472 lat=436 jitter=1172
+2026-10-09T15:00:36.726+00:00 [Telemetry] seq=11 rssi=-29 inet=2 heap=313216 lat=611 jitter=991
+2026-10-09T15:00:43.206+00:00 [Telemetry] seq=12 rssi=-28 inet=2 heap=312948 lat=698 jitter=1123
+2026-10-09T15:00:49.271+00:00 [Telemetry] seq=13 rssi=-28 inet=2 heap=312700 lat=470 jitter=1480
+2026-10-09T15:00:55.616+00:00 [Telemetry] seq=14 rssi=-28 inet=2 heap=312704 lat=692 jitter=1065
+2026-10-09T15:01:01.962+00:00 [Telemetry] seq=15 rssi=-28 inet=2 heap=312704 lat=480 jitter=1345
+2026-10-09T15:01:08.104+00:00 [Telemetry] seq=16 rssi=-28 inet=2 heap=312704 lat=443 jitter=1346
+2026-10-09T15:01:14.000+00:00 [Telemetry] seq=17 rssi=-28 inet=2 heap=312704 lat=430 jitter=1143
+2026-10-09T15:01:20.380+00:00 [Telemetry] seq=18 rssi=-29 inet=2 heap=312704 lat=462 jitter=896
+2026-10-09T15:01:26.524+00:00 [Telemetry] seq=19 rssi=-29 inet=2 heap=312732 lat=494 jitter=1379
+2026-10-09T15:01:32.768+00:00 [Telemetry] seq=20 rssi=-30 inet=2 heap=312736 lat=663 jitter=1144
+2026-10-09T15:01:38.652+00:00 [Telemetry] seq=21 rssi=-28 inet=2 heap=312736 lat=413 jitter=1244
+2026-10-09T15:01:44.834+00:00 [Telemetry] seq=22 rssi=-29 inet=2 heap=312736 lat=466 jitter=884
+2026-10-09T15:01:50.753+00:00 [Telemetry] seq=23 rssi=-31 inet=2 heap=312736 lat=425 jitter=1182
+2026-10-09T15:02:01.627+00:00 [Telemetry] HTTP error: -1
+2026-10-09T15:02:01.627+00:00 [Telemetry] seq=24 rssi=-47 inet=2 heap=312736 lat=809 jitter=919
+2026-10-09T15:02:06.632+00:00 [WiFi] Reconnecting...
+2026-10-09T15:02:21.945+00:00 [Telemetry] HTTP error: -1
+2026-10-09T15:02:21.946+00:00 [Telemetry] seq=25 rssi=-29 inet=2 heap=312708 lat=9999 jitter=10885
+2026-10-09T15:02:37.102+00:00 [Telemetry] HTTP error: -1
+2026-10-09T15:02:37.103+00:00 [Telemetry] seq=26 rssi=-30 inet=2 heap=312452 lat=9999 jitter=10307
+2026-10-09T15:02:52.293+00:00 [Telemetry] HTTP error: -1
+2026-10-09T15:02:52.294+00:00 [Telemetry] seq=27 rssi=-30 inet=2 heap=312184 lat=9999 jitter=10157
+2026-10-09T15:03:07.516+00:00 [Telemetry] HTTP error: -1
+2026-10-09T15:03:07.517+00:00 [Telemetry] seq=28 rssi=-31 inet=2 heap=312972 lat=9999 jitter=10191
+2026-10-09T15:03:14.351+00:00 [Telemetry] seq=29 rssi=-31 inet=2 heap=312968 lat=1001 jitter=10223
+2026-10-09T15:03:20.524+00:00 [Telemetry] seq=30 rssi=-31 inet=2 heap=312960 lat=662 jitter=1835
+2026-10-09T15:03:26.822+00:00 [Telemetry] seq=31 rssi=-30 inet=2 heap=313216 lat=829 jitter=1176
+2026-10-09T15:03:33.084+00:00 [Telemetry] seq=32 rssi=-32 inet=2 heap=313472 lat=755 jitter=1302
+2026-10-09T15:03:39.020+00:00 [Telemetry] seq=33 rssi=-31 inet=2 heap=313216 lat=441 jitter=1264
+2026-10-09T15:03:45.019+00:00 [Telemetry] seq=34 rssi=-32 inet=2 heap=312952 lat=420 jitter=938
+2026-10-09T15:03:51.167+00:00 [Telemetry] seq=35 rssi=-32 inet=2 heap=312696 lat=419 jitter=1000
+2026-10-09T15:03:57.227+00:00 [Telemetry] seq=36 rssi=-32 inet=2 heap=312956 lat=458 jitter=1148
+2026-10-09T15:04:03.252+00:00 [Telemetry] seq=37 rssi=-30 inet=2 heap=312960 lat=426 jitter=1061
+2026-10-09T15:04:09.137+00:00 [Telemetry] seq=38 rssi=-27 inet=2 heap=313000 lat=426 jitter=1025

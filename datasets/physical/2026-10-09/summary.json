@@ -1,0 +1,635 @@
+{
+ "nominal": {
+  "samples": 132,
+  "duration_min": 18.3,
+  "median_interval_s": 7.94,
+  "max_gap_s": 83.6,
+  "challenges": 0,
+  "suspect_samples": 0,
+  "rssi_mean": -29.8,
+  "rssi_median": -28.0,
+  "rssi_min": -85,
+  "rssi_max": -18,
+  "latency_median": 468.5,
+  "latency_max": 3656,
+  "latency_first": 3258,
+  "heap_min": 312224,
+  "heap_max": 316620,
+  "score_min": 0.6299,
+  "avg_score_min": 0.8291,
+  "bssid_hashes": [
+   "419863df009d048c",
+   "a519fa0513e7488c"
+  ],
+  "channels": [
+   "6"
+  ],
+  "dns": [
+   [
+    "172.20.10.1",
+    "0.0.0.0"
+   ]
+  ]
+ },
+ "events": [
+  {
+   "event": "reboot",
+   "utc": "2026-10-09T15:17:52.228+00:00",
+   "minute": 18.4,
+   "detail": {
+    "method": "usb_rts_reset",
+    "port": "/dev/cu.usbmodem14201"
+   },
+   "challenge_status": "critical_reboot",
+   "challenge_source": "172.20.10.3",
+   "challenge_seq": "0",
+   "seconds_to_challenge": 7.94,
+   "challenges_issued": 1,
+   "forged_or_failed_responses": 0,
+   "recovered": true,
+   "seconds_to_recovery": 8.8,
+   "device_messages_before_recovery": 1,
+   "final_state": "authenticated",
+   "reset_to_challenge_s": 7.9,
+   "challenge_to_valid_response_s": 1.0,
+   "observed": true,
+   "phase": "corrective"
+  },
+  {
+   "event": "reboot",
+   "utc": "2026-10-09T15:24:59.633+00:00",
+   "minute": 25.52,
+   "detail": {
+    "method": "usb_rts_reset",
+    "port": "/dev/cu.usbmodem14201"
+   },
+   "challenge_status": "critical_reboot",
+   "challenge_source": "172.20.10.3",
+   "challenge_seq": "0",
+   "seconds_to_challenge": 4.04,
+   "challenges_issued": 1,
+   "forged_or_failed_responses": 0,
+   "recovered": true,
+   "seconds_to_recovery": 4.4,
+   "device_messages_before_recovery": 1,
+   "final_state": "authenticated",
+   "reset_to_challenge_s": 4.0,
+   "challenge_to_valid_response_s": 1.0,
+   "observed": true,
+   "phase": "corrective"
+  },
+  {
+   "event": "reboot",
+   "utc": "2026-10-09T15:27:30.409+00:00",
+   "minute": 28.04,
+   "detail": {
+    "method": "usb_rts_reset",
+    "port": "/dev/cu.usbmodem14201"
+   },
+   "challenge_status": "critical_replay",
+   "challenge_source": "172.20.10.3",
+   "challenge_seq": "0",
+   "seconds_to_challenge": 3.6,
+   "challenges_issued": 1,
+   "forged_or_failed_responses": 0,
+   "recovered": true,
+   "seconds_to_recovery": 3.6,
+   "device_messages_before_recovery": 1,
+   "final_state": "authenticated",
+   "reset_to_challenge_s": 3.6,
+   "challenge_to_valid_response_s": 0.0,
+   "observed": true,
+   "phase": "corrective"
+  },
+  {
+   "event": "replay",
+   "utc": "2026-10-09T15:28:44.702+00:00",
+   "minute": 29.24,
+   "detail": {
+    "http_status": 200,
+    "replayed_seq": 15,
+    "replayed_uptime_ms": 97683,
+    "response": {
+     "challenge": {
+      "nonce": "dee6ff7f8949b2888a85137dfe56b974"
+     },
+     "score": 0.9325,
+     "state": "challenged",
+     "status": "ok"
+    }
+   },
+   "challenge_status": "critical_replay",
+   "challenge_source": "172.20.10.2",
+   "challenge_seq": "15",
+   "seconds_to_challenge": 2.0,
+   "challenges_issued": 2,
+   "forged_or_failed_responses": 0,
+   "recovered": true,
+   "seconds_to_recovery": 8.3,
+   "device_messages_before_recovery": 2,
+   "final_state": "authenticated",
+   "reset_to_challenge_s": null,
+   "challenge_to_valid_response_s": 7.0,
+   "observed": true,
+   "phase": "corrective"
+  },
+  {
+   "event": "reboot",
+   "utc": "2026-10-09T15:36:14.864+00:00",
+   "minute": 36.78,
+   "detail": {
+    "method": "usb_rts_reset",
+    "port": "/dev/cu.usbmodem14201"
+   },
+   "challenge_status": null,
+   "challenge_source": null,
+   "challenge_seq": null,
+   "seconds_to_challenge": null,
+   "challenges_issued": 0,
+   "forged_or_failed_responses": 0,
+   "recovered": false,
+   "seconds_to_recovery": null,
+   "device_messages_before_recovery": 0,
+   "final_state": null,
+   "reset_to_challenge_s": null,
+   "challenge_to_valid_response_s": null,
+   "observed": false,
+   "phase": "corrective"
+  },
+  {
+   "event": "reboot",
+   "utc": "2026-10-09T15:40:00.783+00:00",
+   "minute": 40.54,
+   "detail": {
+    "method": "usb_rts_reset",
+    "port": "/dev/cu.usbmodem14201"
+   },
+   "challenge_status": "critical_replay",
+   "challenge_source": "172.20.10.3",
+   "challenge_seq": "28",
+   "seconds_to_challenge": 430.88,
+   "challenges_issued": 30,
+   "forged_or_failed_responses": 0,
+   "recovered": true,
+   "seconds_to_recovery": 431.2,
+   "device_messages_before_recovery": 1,
+   "final_state": "authenticated",
+   "reset_to_challenge_s": 430.9,
+   "challenge_to_valid_response_s": 1.0,
+   "observed": true,
+   "phase": "corrective"
+  },
+  {
+   "event": "replay",
+   "utc": "2026-10-09T15:54:03.820+00:00",
+   "minute": 54.56,
+   "detail": {
+    "http_status": 200,
+    "replayed_seq": 73,
+    "replayed_uptime_ms": 720708,
+    "response": {
+     "challenge": {
+      "nonce": "f15131e58954758b61735b6c7e0c48b1"
+     },
+     "score": 0.8937,
+     "state": "challenged",
+     "status": "ok"
+    }
+   },
+   "challenge_status": "critical_replay",
+   "challenge_source": "172.20.10.2",
+   "challenge_seq": "73",
+   "seconds_to_challenge": 2.0,
+   "challenges_issued": 1,
+   "forged_or_failed_responses": 0,
+   "recovered": true,
+   "seconds_to_recovery": 7.2,
+   "device_messages_before_recovery": 2,
+   "final_state": "authenticated",
+   "reset_to_challenge_s": null,
+   "challenge_to_valid_response_s": 6.0,
+   "observed": true,
+   "phase": "final"
+  },
+  {
+   "event": "reboot",
+   "utc": "2026-10-09T15:55:19.236+00:00",
+   "minute": 55.85,
+   "detail": {
+    "method": "usb_rts_reset",
+    "port": "/dev/cu.usbmodem14201"
+   },
+   "challenge_status": "critical_reboot",
+   "challenge_source": "172.20.10.3",
+   "challenge_seq": "0",
+   "seconds_to_challenge": 4.06,
+   "challenges_issued": 1,
+   "forged_or_failed_responses": 0,
+   "recovered": true,
+   "seconds_to_recovery": 3.8,
+   "device_messages_before_recovery": 1,
+   "final_state": "authenticated",
+   "reset_to_challenge_s": 4.1,
+   "challenge_to_valid_response_s": 0.0,
+   "observed": true,
+   "phase": "final"
+  },
+  {
+   "event": "replay_forged",
+   "utc": "2026-10-09T15:56:34.489+00:00",
+   "minute": 57.07,
+   "detail": {
+    "forged_response_body": {
+     "challenge": {
+      "nonce": "25782ab1378e8aded09d0b920179b059"
+     },
+     "status": "challenged"
+    },
+    "forged_response_status": 403,
+    "http_status": 200,
+    "replayed_seq": 97,
+    "replayed_uptime_ms": 872744,
+    "response": {
+     "challenge": {
+      "nonce": "25782ab1378e8aded09d0b920179b059"
+     },
+     "score": 0.9107,
+     "state": "challenged",
+     "status": "ok"
+    }
+   },
+   "challenge_status": "critical_replay",
+   "challenge_source": "172.20.10.2",
+   "challenge_seq": "97",
+   "seconds_to_challenge": 1.99,
+   "challenges_issued": 1,
+   "forged_or_failed_responses": 1,
+   "recovered": true,
+   "seconds_to_recovery": 5.5,
+   "device_messages_before_recovery": 1,
+   "final_state": "authenticated",
+   "reset_to_challenge_s": null,
+   "challenge_to_valid_response_s": 4.0,
+   "observed": true,
+   "phase": "final"
+  },
+  {
+   "event": "reboot",
+   "utc": "2026-10-09T15:57:49.929+00:00",
+   "minute": 58.36,
+   "detail": {
+    "method": "usb_rts_reset",
+    "port": "/dev/cu.usbmodem14201"
+   },
+   "challenge_status": "critical_reboot",
+   "challenge_source": "172.20.10.3",
+   "challenge_seq": "0",
+   "seconds_to_challenge": 4.05,
+   "challenges_issued": 1,
+   "forged_or_failed_responses": 0,
+   "recovered": true,
+   "seconds_to_recovery": 4.1,
+   "device_messages_before_recovery": 1,
+   "final_state": "authenticated",
+   "reset_to_challenge_s": 4.1,
+   "challenge_to_valid_response_s": 1.0,
+   "observed": true,
+   "phase": "final"
+  },
+  {
+   "event": "replay",
+   "utc": "2026-10-09T15:59:05.175+00:00",
+   "minute": 59.58,
+   "detail": {
+    "http_status": 200,
+    "replayed_seq": 16,
+    "replayed_uptime_ms": 103525,
+    "response": {
+     "challenge": {
+      "nonce": "8b3de50d157a84a9a3d3b86bfd65cfa8"
+     },
+     "score": 0.9272,
+     "state": "challenged",
+     "status": "ok"
+    }
+   },
+   "challenge_status": "critical_replay",
+   "challenge_source": "172.20.10.2",
+   "challenge_seq": "16",
+   "seconds_to_challenge": 2.0,
+   "challenges_issued": 1,
+   "forged_or_failed_responses": 0,
+   "recovered": true,
+   "seconds_to_recovery": 6.8,
+   "device_messages_before_recovery": 2,
+   "final_state": "authenticated",
+   "reset_to_challenge_s": null,
+   "challenge_to_valid_response_s": 5.0,
+   "observed": true,
+   "phase": "final"
+  },
+  {
+   "event": "reboot",
+   "utc": "2026-10-09T16:00:20.610+00:00",
+   "minute": 60.87,
+   "detail": {
+    "method": "usb_rts_reset",
+    "port": "/dev/cu.usbmodem14201"
+   },
+   "challenge_status": null,
+   "challenge_source": null,
+   "challenge_seq": null,
+   "seconds_to_challenge": null,
+   "challenges_issued": 0,
+   "forged_or_failed_responses": 0,
+   "recovered": false,
+   "seconds_to_recovery": null,
+   "device_messages_before_recovery": 0,
+   "final_state": null,
+   "reset_to_challenge_s": null,
+   "challenge_to_valid_response_s": null,
+   "observed": false,
+   "phase": "final"
+  },
+  {
+   "event": "reboot",
+   "utc": "2026-10-09T16:03:01.302+00:00",
+   "minute": 63.55,
+   "detail": {
+    "method": "usb_rts_reset",
+    "port": "/dev/cu.usbmodem14201"
+   },
+   "challenge_status": null,
+   "challenge_source": null,
+   "challenge_seq": null,
+   "seconds_to_challenge": null,
+   "challenges_issued": 0,
+   "forged_or_failed_responses": 0,
+   "recovered": false,
+   "seconds_to_recovery": null,
+   "device_messages_before_recovery": 0,
+   "final_state": null,
+   "reset_to_challenge_s": null,
+   "challenge_to_valid_response_s": null,
+   "observed": false,
+   "phase": "final"
+  },
+  {
+   "event": "reboot",
+   "utc": "2026-10-09T16:05:42.051+00:00",
+   "minute": 66.23,
+   "detail": {
+    "method": "usb_rts_reset",
+    "port": "/dev/cu.usbmodem14201"
+   },
+   "challenge_status": null,
+   "challenge_source": null,
+   "challenge_seq": null,
+   "seconds_to_challenge": null,
+   "challenges_issued": 0,
+   "forged_or_failed_responses": 0,
+   "recovered": false,
+   "seconds_to_recovery": null,
+   "device_messages_before_recovery": 0,
+   "final_state": null,
+   "reset_to_challenge_s": null,
+   "challenge_to_valid_response_s": null,
+   "observed": false,
+   "phase": "final"
+  },
+  {
+   "event": "reboot",
+   "utc": "2026-10-09T16:11:42.824+00:00",
+   "minute": 72.24,
+   "detail": {
+    "method": "usb_rts_reset",
+    "port": "/dev/cu.usbmodem14201"
+   },
+   "challenge_status": "critical_reboot",
+   "challenge_source": "172.20.10.3",
+   "challenge_seq": "0",
+   "seconds_to_challenge": 9.89,
+   "challenges_issued": 1,
+   "forged_or_failed_responses": 0,
+   "recovered": true,
+   "seconds_to_recovery": 10.2,
+   "device_messages_before_recovery": 1,
+   "final_state": "authenticated",
+   "reset_to_challenge_s": 9.9,
+   "challenge_to_valid_response_s": 1.0,
+   "observed": true,
+   "phase": "final"
+  },
+  {
+   "event": "replay_forged",
+   "utc": "2026-10-09T16:12:58.751+00:00",
+   "minute": 73.48,
+   "detail": {
+    "forged_response_body": {
+     "challenge": {
+      "nonce": "2dcfcf4978394aa78addcced3666d247"
+     },
+     "status": "challenged"
+    },
+    "forged_response_status": 403,
+    "http_status": 200,
+    "replayed_seq": 20,
+    "replayed_uptime_ms": 298217,
+    "response": {
+     "challenge": {
+      "nonce": "2dcfcf4978394aa78addcced3666d247"
+     },
+     "score": 0.8486,
+     "state": "challenged",
+     "status": "ok"
+    }
+   },
+   "challenge_status": "critical_replay",
+   "challenge_source": "172.20.10.2",
+   "challenge_seq": "20",
+   "seconds_to_challenge": 1.99,
+   "challenges_issued": 1,
+   "forged_or_failed_responses": 1,
+   "recovered": true,
+   "seconds_to_recovery": 3.2,
+   "device_messages_before_recovery": 1,
+   "final_state": "authenticated",
+   "reset_to_challenge_s": null,
+   "challenge_to_valid_response_s": 2.0,
+   "observed": true,
+   "phase": "final"
+  },
+  {
+   "event": "reboot",
+   "utc": "2026-10-09T16:14:14.193+00:00",
+   "minute": 74.77,
+   "detail": {
+    "method": "usb_rts_reset",
+    "port": "/dev/cu.usbmodem14201"
+   },
+   "challenge_status": "critical_reboot",
+   "challenge_source": "172.20.10.3",
+   "challenge_seq": "0",
+   "seconds_to_challenge": 4.07,
+   "challenges_issued": 1,
+   "forged_or_failed_responses": 0,
+   "recovered": true,
+   "seconds_to_recovery": 4.8,
+   "device_messages_before_recovery": 1,
+   "final_state": "authenticated",
+   "reset_to_challenge_s": 4.1,
+   "challenge_to_valid_response_s": 1.0,
+   "observed": true,
+   "phase": "final"
+  },
+  {
+   "event": "replay",
+   "utc": "2026-10-09T16:15:29.726+00:00",
+   "minute": 75.99,
+   "detail": {
+    "http_status": 200,
+    "replayed_seq": 13,
+    "replayed_uptime_ms": 95167,
+    "response": {
+     "challenge": {
+      "nonce": "9aa673c13aa0c567ecb8ef741d4648e3"
+     },
+     "score": 0.8901,
+     "state": "challenged",
+     "status": "ok"
+    }
+   },
+   "challenge_status": "critical_replay",
+   "challenge_source": "172.20.10.2",
+   "challenge_seq": "13",
+   "seconds_to_challenge": 1.99,
+   "challenges_issued": 1,
+   "forged_or_failed_responses": 0,
+   "recovered": true,
+   "seconds_to_recovery": 3.3,
+   "device_messages_before_recovery": 1,
+   "final_state": "authenticated",
+   "reset_to_challenge_s": null,
+   "challenge_to_valid_response_s": 2.0,
+   "observed": true,
+   "phase": "final"
+  },
+  {
+   "event": "reboot",
+   "utc": "2026-10-09T16:16:45.279+00:00",
+   "minute": 77.28,
+   "detail": {
+    "method": "usb_rts_reset",
+    "port": "/dev/cu.usbmodem14201"
+   },
+   "challenge_status": "critical_reboot",
+   "challenge_source": "172.20.10.3",
+   "challenge_seq": "0",
+   "seconds_to_challenge": 4.17,
+   "challenges_issued": 1,
+   "forged_or_failed_responses": 0,
+   "recovered": true,
+   "seconds_to_recovery": 3.7,
+   "device_messages_before_recovery": 1,
+   "final_state": "authenticated",
+   "reset_to_challenge_s": 4.2,
+   "challenge_to_valid_response_s": 0.0,
+   "observed": true,
+   "phase": "final"
+  }
+ ],
+ "server_restarts": [
+  "2026-10-09T15:20:30.000+00:00",
+  "2026-10-09T15:30:42.000+00:00",
+  "2026-10-09T15:51:08.000+00:00",
+  "2026-10-09T16:08:40.000+00:00"
+ ],
+ "unobserved_events": [
+  {
+   "utc": "2026-10-09T15:36:14.864+00:00",
+   "event": "reboot"
+  },
+  {
+   "utc": "2026-10-09T16:00:20.610+00:00",
+   "event": "reboot"
+  },
+  {
+   "utc": "2026-10-09T16:03:01.302+00:00",
+   "event": "reboot"
+  },
+  {
+   "utc": "2026-10-09T16:05:42.051+00:00",
+   "event": "reboot"
+  }
+ ],
+ "final_phase": {
+  "start_utc": "2026-10-09T15:51:08.991000+00:00",
+  "device_messages": 185,
+  "duration_min": 28.8,
+  "challenges_total": 10,
+  "by_event": {
+   "reboot": {
+    "events": 5,
+    "challenged": 5,
+    "statuses": [
+     "critical_reboot"
+    ],
+    "recovered": 5,
+    "median_seconds_to_recovery": 4.1,
+    "max_seconds_to_recovery": 10.2,
+    "challenges_issued_total": 5,
+    "failed_responses": 0,
+    "median_reset_to_challenge_s": 4.1,
+    "max_reset_to_challenge_s": 9.9,
+    "max_challenge_to_valid_response_s": 1.0,
+    "median_challenge_to_valid_response_s": 1.0
+   },
+   "replay": {
+    "events": 3,
+    "challenged": 3,
+    "statuses": [
+     "critical_replay"
+    ],
+    "recovered": 3,
+    "median_seconds_to_recovery": 6.8,
+    "max_seconds_to_recovery": 7.2,
+    "challenges_issued_total": 3,
+    "failed_responses": 0,
+    "median_reset_to_challenge_s": null,
+    "max_reset_to_challenge_s": null,
+    "max_challenge_to_valid_response_s": 6.0,
+    "median_challenge_to_valid_response_s": 5.0
+   },
+   "replay_forged": {
+    "events": 2,
+    "challenged": 2,
+    "statuses": [
+     "critical_replay"
+    ],
+    "recovered": 2,
+    "median_seconds_to_recovery": 4.35,
+    "max_seconds_to_recovery": 5.5,
+    "challenges_issued_total": 2,
+    "failed_responses": 2,
+    "median_reset_to_challenge_s": null,
+    "max_reset_to_challenge_s": null,
+    "max_challenge_to_valid_response_s": 4.0,
+    "median_challenge_to_valid_response_s": 3.0
+   }
+  }
+ },
+ "corrective_phase": {
+  "device_messages": 165,
+  "challenges_total": 35,
+  "status_counts": {
+   "critical_reboot": 3,
+   "critical_replay": 32,
+   "ok": 0
+  }
+ },
+ "phase_bounds_min": {
+  "nominal_end": 18.4,
+  "final_start": 51.68,
+  "end": 80.52
+ }
+}

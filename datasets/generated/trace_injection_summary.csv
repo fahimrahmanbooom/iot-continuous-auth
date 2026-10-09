@@ -1,0 +1,6 @@
+scenario,trials,challenges,challenge_rate_pct,median_detection_samples,valid_responses_accepted,recovered_authenticated
+nominal,20,0,0.0,,0,20
+wan_dns_fault,20,20,100.0,5.0,20,20
+ap_reassociation,20,20,100.0,5.0,20,20
+device_reboot,20,20,100.0,1.0,20,20
+sequence_replay,20,20,100.0,1.0,20,20

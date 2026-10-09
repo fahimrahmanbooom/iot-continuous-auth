@@ -15,8 +15,10 @@
 set -euo pipefail
 
 DAYS=3650
+SERVER_IP="${SERVER_IP:-192.168.1.100}"
+SERVER_DNS="${SERVER_DNS:-iot-auth.local}"
 SUBJECT_CA="/C=GB/ST=Scotland/L=London/O=UWS/OU=IoT-Auth/CN=IoT-Auth-CA"
-SUBJECT_SRV="/C=GB/ST=Scotland/L=London/O=UWS/OU=IoT-Auth/CN=192.168.1.100"
+SUBJECT_SRV="/C=GB/ST=Scotland/L=London/O=UWS/OU=IoT-Auth/CN=${SERVER_DNS}"
 
 echo "[1/4] Generating CA private key..."
 openssl genrsa -out ca.key 2048
@@ -33,7 +35,8 @@ echo "[3/4] Generating server private key and CSR..."
 openssl req -newkey rsa:2048 -nodes \
     -keyout server.key \
     -out server.csr \
-    -subj "${SUBJECT_SRV}"
+    -subj "${SUBJECT_SRV}" \
+    -addext "subjectAltName=IP:${SERVER_IP},DNS:${SERVER_DNS}"
 
 echo "[4/4] Signing server certificate with CA..."
 openssl x509 -req \
@@ -43,7 +46,8 @@ openssl x509 -req \
     -CAcreateserial \
     -out server.crt \
     -days ${DAYS} \
-    -sha256
+    -sha256 \
+    -copy_extensions copy
 
 rm -f server.csr ca.srl
 

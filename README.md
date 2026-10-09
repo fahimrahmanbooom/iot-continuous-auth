@@ -2,9 +2,9 @@
 
 Source code and experimental datasets for the paper:
 
-> **Continuous Authentication Framework for IoT Devices**
-> Fahim Rahman, Manesh Thankappan, Danial Javaheri
-> *Machine Learning and Knowledge Extraction (MAKE)*, MDPI, 2026.
+> **Telemetry-Driven Continuous Re-Verification for IoT Devices: A Deterministic Framework Evaluated on an ESP32-C6**
+> Fahim Rahman, Manesh Thankappan, Danial Javaheri, Muhsin Hassanu, Raja Ujjan
+> *Sensors*, MDPI, 2026.
 
 ## Overview
 
@@ -15,9 +15,9 @@ This repository contains the implementation of a lightweight continuous authenti
 - Multi-domain telemetry collection (RSSI, BSSID, DNS, heap, latency, uptime, sequence numbers)
 - Weighted feature scoring with sliding-window averaging
 - Four-state authentication model: Authenticated, Suspect, Challenged, Rejected
-- Adaptive cryptographic challenge-response (HMAC-SHA256)
+- Selective cryptographic challenge-response (HMAC-SHA256)
 - TLS-secured communication channel
-- Minimal overhead (<1% memory, <1 kbps data rate)
+- Reproducible trace-driven evaluation using recorded ESP32 telemetry
 
 ## Repository Structure
 
@@ -72,10 +72,14 @@ The server starts on port 5000 with TLS enabled. Edit `config.py` to adjust auth
 
 1. Open `client/iot_telemetry_firmware/iot_telemetry_firmware.ino` in Arduino IDE
 2. Install the ESP32 board package (Espressif ESP32 Arduino Core)
-3. Configure `WIFI_SSID`, `WIFI_PASSWORD`, `SERVER_URL`, and `HMAC_KEY`
-4. Paste the CA certificate into `CA_CERT`
-5. Select board: **ESP32-C6 Dev Module**
-6. Upload to the device
+3. Copy `secrets.example.h` to `secrets.h` and set the Wi-Fi credentials and a unique random device key of at least 32 bytes
+4. Set the same key on the server with `IOT_AUTH_ESP32_LAB_01_KEY`; do not commit `secrets.h` or a deployment key
+5. Configure `SERVER_URL` and paste the CA certificate into `CA_CERT`
+6. Select board: **ESP32-C6 Dev Module**
+7. Upload to the device
+
+Any key that has previously appeared in a public commit must be treated as
+compromised and rotated before deployment.
 
 ### 4. Running Experiments
 
@@ -88,11 +92,42 @@ Key parameters in `server/config.py`:
 | Parameter | Default | Description |
 |-----------|---------|-------------|
 | `WINDOW_SIZE` | 5 | Sliding window length for score averaging |
-| `SUSPICION_THRESHOLD` | 0.65 | Score below which device becomes Suspect |
+| `SUSPICION_THRESHOLD` | 0.75 | Score below which device becomes Suspect |
 | `CHALLENGE_THRESHOLD` | 0.45 | Score below which a challenge is issued |
 | `SUSPECT_PATIENCE` | 3 | Consecutive suspect cycles before challenge |
 | `CHALLENGE_TIMEOUT_SEC` | 10.0 | Time allowed for challenge response |
 | `MAX_CHALLENGE_FAILURES` | 3 | Failed challenges before Rejected state |
+| `REENROLL_AFTER_VERIFICATION` | True | Adopt a new network context after a valid challenge response, once the next sample confirms it |
+| `SERVER_PORT` | 5000 | Override with `IOT_AUTH_PORT` (macOS reserves 5000 for AirPlay Receiver) |
+
+Sequence replay and reboot events trigger an immediate challenge because they
+can otherwise disappear within the five-sample moving average. Run
+`experiments/run_trace_injection.py` for the primary evaluation,
+`experiments/run_sensitivity.py` for the 3-by-3 window and threshold analysis,
+and `experiments/run_benign_and_baselines.py` for the benign-disruption,
+weight-perturbation, and reference-rule analyses. All three replay the same
+recorded trace; none collects new data.
+
+## Physical Validation
+
+The physical tests run the firmware on an ESP32-C6 against the live server.
+
+```bash
+cd certs && SERVER_IP=<server-ip> bash setup_certs.sh && cd ..
+# put SERVER_HOST, SERVER_PORT, CA_CERT, Wi-Fi credentials, and HMAC_KEY in secrets.h
+cd server && IOT_AUTH_PORT=5443 IOT_AUTH_ESP32_LAB_01_KEY=<key> \
+  IOT_AUTH_CAPTURE_ENVELOPES=../datasets/captured_envelopes.jsonl \
+  python verification_server.py
+python experiments/device/serial_logger.py /dev/cu.usbmodemXXXX datasets/device_serial.log
+python experiments/device/physical_events.py reboot           # USB reset of the board
+python experiments/device/physical_events.py replay --age 120 # replay an older signed message
+python experiments/device/physical_events.py replay --forge   # replay plus forged challenge answer
+python experiments/device/analyze_physical.py 2026-10-09
+```
+
+The server writes one row per accepted message to `datasets/decisions.csv`.
+The archived session, its summary, and the timeline figure are in
+`datasets/physical/`.
 
 ## Telemetry Fields
 
@@ -120,9 +155,9 @@ If you use this code or dataset in your research, please cite:
 
 ```bibtex
 @article{rahman2026continuous,
-  title={Continuous Authentication Framework for IoT Devices},
-  author={Rahman, Fahim and Thankappan, Manesh and Javaheri, Danial},
-  journal={Machine Learning and Knowledge Extraction},
+  title={Telemetry-Driven Continuous Re-Verification for IoT Devices: A Deterministic Framework Evaluated on an ESP32-C6},
+  author={Rahman, Fahim and Thankappan, Manesh and Javaheri, Danial and Hassanu, Muhsin and Ujjan, Raja},
+  journal={Sensors},
   year={2026},
   publisher={MDPI}
 }

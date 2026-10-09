@@ -21,7 +21,9 @@ import csv
 import json
 import hmac
 import hashlib
+import ipaddress
 import time
+import socket
 import ssl
 from datetime import datetime, timezone
 
@@ -31,8 +33,14 @@ from config import (
     SERVER_HOST, SERVER_PORT,
     TLS_CERT, TLS_KEY,
     DEVICE_KEYS,
+    DEVELOPMENT_DEVICE_KEY,
     LOG_DIR,
     AUTH_LOG,
+    DECISION_LOG,
+    ENVELOPE_CAPTURE,
+    WINDOW_SIZE,
+    SUSPICION_THRESHOLD,
+    CHALLENGE_THRESHOLD,
 )
 from auth_engine import AuthEngine, AuthState
 
@@ -54,6 +62,30 @@ AUTH_COLUMNS = [
     "timestamp", "device_id", "state", "prev_state", "score",
     "avg_score", "trigger", "challenge_nonce",
 ]
+
+DECISION_COLUMNS = [
+    "log_ts_utc", "server_ts", "remote_addr", "device_id", "seq",
+    "uptime_ms", "internet_state", "rssi_dbm", "wifi_bssid_hash", "channel",
+    "dns1", "dns2", "heap_free", "latency_ms", "reset_reason", "score",
+    "avg_score", "prev_state", "state", "status", "challenge_issued",
+    "challenge_nonce",
+]
+
+REQUIRED_TELEMETRY_FIELDS = {
+    "device_id": str,
+    "seq": int,
+    "ts_ms": int,
+    "uptime_ms": int,
+    "wifi_connected": int,
+    "internet_state": int,
+    "rssi_dbm": int,
+    "channel": int,
+    "dns1": str,
+    "dns2": str,
+    "heap_free": int,
+    "latency_ms": int,
+    "wifi_bssid_hash": str,
+}
 
 
 def ensure_log_dir():
@@ -130,6 +162,49 @@ def log_auth_event(device_id: str, state: str, prev_state: str,
         ])
 
 
+def log_decision(payload: dict, result: dict, prev_state: str,
+                 remote_addr: str):
+    """Append the decision for one accepted telemetry message."""
+    new_file = not os.path.exists(DECISION_LOG)
+    with open(DECISION_LOG, "a", newline="", encoding="utf-8") as f:
+        writer = csv.writer(f)
+        if new_file:
+            writer.writerow(DECISION_COLUMNS)
+        writer.writerow([
+            datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.%fZ"),
+            round(time.time(), 3),
+            remote_addr,
+            payload.get("device_id", ""),
+            payload.get("seq", ""),
+            payload.get("uptime_ms", ""),
+            payload.get("internet_state", ""),
+            payload.get("rssi_dbm", ""),
+            payload.get("wifi_bssid_hash", ""),
+            payload.get("channel", ""),
+            payload.get("dns1", ""),
+            payload.get("dns2", ""),
+            payload.get("heap_free", ""),
+            payload.get("latency_ms", ""),
+            payload.get("reset_reason", ""),
+            result["score"],
+            result["avg_score"],
+            prev_state,
+            result["state"],
+            result["status"],
+            int(bool(result.get("challenge"))),
+            result.get("challenge", {}).get("nonce", ""),
+        ])
+
+
+def capture_envelope(envelope: dict):
+    """Store an accepted signed envelope when capture is enabled."""
+    if not ENVELOPE_CAPTURE:
+        return
+    with open(ENVELOPE_CAPTURE, "a", encoding="utf-8") as f:
+        f.write(json.dumps(envelope, separators=(",", ":"),
+                           sort_keys=True) + "\n")
+
+
 def verify_hmac(payload_str: str, received_hmac: str,
                 device_id: str) -> bool:
     """Verify the HMAC-SHA256 signature on the telemetry payload."""
@@ -142,6 +217,67 @@ def verify_hmac(payload_str: str, received_hmac: str,
         hashlib.sha256
     ).hexdigest()
     return hmac.compare_digest(expected, received_hmac)
+
+
+def canonical_payload(payload: dict) -> str:
+    """Serialize telemetry exactly as the firmware signs it."""
+    return json.dumps(payload, separators=(",", ":"), sort_keys=True)
+
+
+def valid_envelope(envelope: object) -> bool:
+    """Return True for the expected signed telemetry envelope shape."""
+    if not isinstance(envelope, dict):
+        return False
+    payload = envelope.get("payload")
+    signature = envelope.get("hmac")
+    if not isinstance(payload, dict) or not isinstance(signature, str):
+        return False
+    device_id = payload.get("device_id")
+    if not isinstance(device_id, str) or device_id not in DEVICE_KEYS:
+        return False
+    if len(signature) != 64:
+        return False
+    try:
+        int(signature, 16)
+    except ValueError:
+        return False
+    return True
+
+
+def valid_telemetry_payload(payload: object) -> bool:
+    """Validate required scoring fields before logging or state evaluation."""
+    if not isinstance(payload, dict):
+        return False
+    for field, expected_type in REQUIRED_TELEMETRY_FIELDS.items():
+        value = payload.get(field)
+        if expected_type is int:
+            if isinstance(value, bool) or not isinstance(value, int):
+                return False
+        elif not isinstance(value, expected_type):
+            return False
+
+    if payload["device_id"] not in DEVICE_KEYS:
+        return False
+    if payload["seq"] < 0 or payload["ts_ms"] < 0 or payload["uptime_ms"] < 0:
+        return False
+    if payload["wifi_connected"] not in {0, 1}:
+        return False
+    if payload["internet_state"] not in {0, 1, 2}:
+        return False
+    if not -127 <= payload["rssi_dbm"] <= 0:
+        return False
+    if not 0 <= payload["channel"] <= 14:
+        return False
+    if payload["heap_free"] < 0 or not 0 <= payload["latency_ms"] <= 120000:
+        return False
+    if not payload["wifi_bssid_hash"] or len(payload["wifi_bssid_hash"]) > 128:
+        return False
+    try:
+        ipaddress.ip_address(payload["dns1"])
+        ipaddress.ip_address(payload["dns2"])
+    except ValueError:
+        return False
+    return True
 
 
 # ─── API Endpoints ───────────────────────────────────────────────────────────
@@ -162,19 +298,20 @@ def receive_telemetry():
     except Exception:
         return jsonify({"error": "invalid_json"}), 400
 
-    payload = envelope.get("payload", {})
-    received_sig = envelope.get("hmac", "")
-    device_id = payload.get("device_id", "unknown")
+    if not valid_envelope(envelope):
+        return jsonify({"error": "invalid_envelope"}), 400
+
+    payload = envelope["payload"]
+    received_sig = envelope["hmac"]
+    device_id = payload["device_id"]
 
     # Verify HMAC integrity
-    payload_str = json.dumps(payload, separators=(",", ":"),
-                             sort_keys=False)
+    payload_str = canonical_payload(payload)
     if not verify_hmac(payload_str, received_sig, device_id):
-        # Re-try with the raw payload string from the envelope
-        # (handles serialization differences)
-        raw_body = request.get_data(as_text=True)
-        # Extract payload portion between "payload": and ,"hmac"
-        pass  # Accept for now; in production, reject invalid HMAC
+        return jsonify({"error": "invalid_hmac"}), 401
+
+    if not valid_telemetry_payload(payload):
+        return jsonify({"error": "invalid_telemetry"}), 400
 
     # Log raw telemetry to CSV
     log_telemetry(payload)
@@ -186,6 +323,8 @@ def receive_telemetry():
     # Evaluate through authentication engine
     result = engine.evaluate_telemetry(payload)
     new_state = result["state"]
+    log_decision(payload, result, prev_state, request.remote_addr or "")
+    capture_envelope(envelope)
 
     # Log authentication state changes
     if new_state != prev_state:
@@ -232,10 +371,17 @@ def receive_challenge_response():
     except Exception:
         return jsonify({"error": "invalid_json"}), 400
 
+    if not isinstance(data, dict):
+        return jsonify({"error": "invalid_request"}), 400
+
     device_id = data.get("device_id", "")
     nonce = data.get("nonce", "")
     ts = data.get("ts", 0)
     sig = data.get("hmac", "")
+
+    if (device_id not in DEVICE_KEYS or not isinstance(nonce, str) or
+            not isinstance(ts, int) or not isinstance(sig, str)):
+        return jsonify({"error": "invalid_request"}), 400
 
     ctx = engine.devices.get(device_id)
     prev_state = ctx.state.value if ctx else "unknown"
@@ -256,7 +402,11 @@ def receive_challenge_response():
         return jsonify({"status": "authenticated"}), 200
     else:
         print(f"[Server] Challenge FAILED for {device_id} -> {new_state}")
-        return jsonify({"status": new_state}), 403
+        response = {"status": new_state}
+        ctx = engine.devices.get(device_id)
+        if ctx and ctx.state == AuthState.CHALLENGED and ctx.pending_nonce:
+            response["challenge"] = {"nonce": ctx.pending_nonce}
+        return jsonify(response), 403
 
 
 @app.route("/api/status/<device_id>", methods=["GET"])
@@ -280,6 +430,14 @@ def device_status(device_id):
 # ─── Main ────────────────────────────────────────────────────────────────────
 
 def main():
+    if any(
+        key == DEVELOPMENT_DEVICE_KEY or len(key.encode("utf-8")) < 32
+        for key in DEVICE_KEYS.values()
+    ):
+        raise RuntimeError(
+            "Refusing to start with a public or short HMAC key. Set "
+            "IOT_AUTH_ESP32_LAB_01_KEY to a unique secret of at least 32 bytes."
+        )
     ensure_log_dir()
 
     print("=" * 60)
@@ -296,6 +454,11 @@ def main():
     # Configure TLS
     context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
     context.load_cert_chain(TLS_CERT, TLS_KEY)
+
+    # The development server performs the TLS handshake while accepting a
+    # connection. Without a timeout, a client that resets mid-handshake (for
+    # example, a device rebooting) blocks every later connection.
+    socket.setdefaulttimeout(15)
 
     app.run(
         host=SERVER_HOST,

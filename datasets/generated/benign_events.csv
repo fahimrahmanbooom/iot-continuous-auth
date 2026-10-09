@@ -1,0 +1,9 @@
+reenrollment,event,trials,trials_with_challenge,total_challenges,max_challenges_per_trial,median_first_challenge,final_authenticated
+enabled,roaming_same_network,20,15,15,1,5,20
+disabled,roaming_same_network,20,15,59,4,5,5
+enabled,dhcp_secondary_resolver,20,1,1,1,5,20
+disabled,dhcp_secondary_resolver,20,1,1,1,5,20
+enabled,dhcp_both_resolvers,20,1,1,1,5,20
+disabled,dhcp_both_resolvers,20,1,1,1,5,20
+enabled,planned_reboot,20,20,20,1,1.0,20
+disabled,planned_reboot,20,20,20,1,1.0,20

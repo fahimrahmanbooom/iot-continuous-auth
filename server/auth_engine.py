@@ -8,14 +8,15 @@ Implements the multi-state authentication model described in the paper:
 Authentication score S(t) is computed per Equation (1):
     S(t) = sum( w_i * f_i(t) )  for i = 1..N
 
-Smoothed over a sliding window per Equation (2):
+Smoothed over a sliding window per Equation (3):
     S_bar(t) = (1/W) * sum( S(t-k) )  for k = 0..W-1
 
 State transitions:
-    - S_bar >= theta_s          -> Authenticated
+    - S_bar >= theta_s            -> Authenticated
     - theta_c <= S_bar < theta_s -> Suspect
-    - S_bar < theta_c           -> Challenge issued
-    - Challenge failure          -> Rejected
+    - S_bar < theta_c             -> Challenge issued
+    - Sequence replay or reboot   -> Challenge issued
+    - Repeated challenge failure  -> Rejected
 
 Author : Fahim Rahman
 Date   : December 2025
@@ -43,7 +44,11 @@ from config import (
     HEAP_TOLERANCE,
     MAX_SEQ_GAP,
     DEVICE_KEYS,
+    REENROLL_AFTER_VERIFICATION,
 )
+
+# Number of recent (sequence, uptime) pairs retained per device.
+SEEN_MESSAGE_CACHE = 1024
 
 
 class AuthState(Enum):
@@ -73,13 +78,29 @@ class DeviceContext:
         self.baseline_dns1: Optional[str] = None
         self.baseline_dns2: Optional[str] = None
 
-        # Previous telemetry for continuity checks
+        # Previous telemetry for continuity checks, and recently accepted
+        # (sequence, uptime) pairs used to separate replay from reboot.
         self.prev_seq: Optional[int] = None
         self.prev_uptime: Optional[int] = None
+        self.seen_messages: deque = deque(maxlen=SEEN_MESSAGE_CACHE)
 
         # Pending challenge
         self.pending_nonce: Optional[str] = None
         self.challenge_deadline: float = 0.0
+
+        # Network context reported when the pending challenge was issued,
+        # and a verified candidate context awaiting one confirming sample.
+        self.challenge_context: Optional[tuple] = None
+        self.candidate_context: Optional[tuple] = None
+        # (sequence, uptime) of the latest genuine message that received the
+        # pending nonce; continuity is resynchronized to it after a valid
+        # response.
+        self.challenge_counters: Optional[tuple] = None
+
+        # Most recent scores are retained while a challenge is pending.
+        self.last_score = 0.0
+        self.last_avg_score = 0.0
+        self.last_features: Dict[str, float] = {}
 
         # Timestamps
         self.last_telemetry_ts: float = 0.0
@@ -119,16 +140,53 @@ class AuthEngine:
 
         # Check for expired challenges
         if ctx.state == AuthState.CHALLENGED:
+            # This message receives the pending nonce; if it is a genuine
+            # (not previously accepted) message, its counters are the ones to
+            # resynchronize to once the device proves key possession.
+            counters = (telemetry.get("seq"), telemetry.get("uptime_ms"))
+            if counters not in ctx.seen_messages:
+                ctx.challenge_counters = counters
+                ctx.seen_messages.append(counters)
             if time.time() > ctx.challenge_deadline:
                 ctx.challenge_failures += 1
                 if ctx.challenge_failures >= MAX_CHALLENGE_FAILURES:
                     ctx.state = AuthState.REJECTED
+                    ctx.pending_nonce = None
+                    ctx.challenge_deadline = 0.0
                     return self._result(ctx, 0.0, 0.0, {},
                                         "challenge_timeout_rejected")
                 else:
-                    ctx.state = AuthState.SUSPECT
-                    return self._result(ctx, 0.0, 0.0, {},
-                                        "challenge_timeout_suspect")
+                    challenge = self._issue_challenge(ctx)
+                    return self._result(
+                        ctx, 0.0, 0.0, {},
+                        "challenge_timeout_rechallenged",
+                        challenge=challenge,
+                    )
+            else:
+                return self._result(
+                    ctx,
+                    ctx.last_score,
+                    ctx.last_avg_score,
+                    ctx.last_features,
+                    "challenge_pending",
+                    challenge={
+                        "nonce": ctx.pending_nonce,
+                        "deadline": ctx.challenge_deadline,
+                    },
+                )
+
+        continuity_event = self._continuity_event(ctx, telemetry)
+        counters = (telemetry.get("seq"), telemetry.get("uptime_ms"))
+        duplicate = counters in ctx.seen_messages
+        ctx.seen_messages.append(counters)
+
+        # A network context that was reported when a challenge was issued,
+        # and in which the device then proved key possession, becomes the
+        # baseline once the next sample confirms the same context.
+        if ctx.candidate_context is not None:
+            if self._network_context(telemetry) == ctx.candidate_context:
+                self._adopt_context(ctx, telemetry)
+            ctx.candidate_context = None
 
         # Compute individual feature scores
         features = self._compute_features(ctx, telemetry)
@@ -139,18 +197,33 @@ class AuthEngine:
             for name, value in features.items()
         )
 
-        # Sliding window average S_bar(t)            [Equation 2]
+        # Sliding window average S_bar(t)            [Equation 3]
         ctx.score_window.append(score)
         avg_score = sum(ctx.score_window) / len(ctx.score_window)
+        ctx.last_score = score
+        ctx.last_avg_score = avg_score
+        ctx.last_features = features
 
-        # Store previous values for continuity checks
-        ctx.prev_seq = telemetry.get("seq")
-        ctx.prev_uptime = telemetry.get("uptime_ms")
+        # Store previous values for continuity checks. A replayed message does
+        # not describe the device's current counters, so it must not replace
+        # them; otherwise the next genuine message would look like a reboot.
+        if continuity_event != "replay":
+            ctx.prev_seq = telemetry.get("seq")
+            ctx.prev_uptime = telemetry.get("uptime_ms")
         ctx.last_telemetry_ts = time.time()
 
-        # State transition logic
+        # Sequence replay and reboot are short-lived discontinuities. They
+        # bypass smoothing so that a single critical event is not averaged
+        # away by otherwise healthy telemetry.
         challenge = None
-        if avg_score >= SUSPICION_THRESHOLD:
+        status = "ok"
+        if continuity_event in {"replay", "reboot"}:
+            challenge = self._issue_challenge(ctx, telemetry)
+            status = f"critical_{continuity_event}"
+            if duplicate:
+                # Counters of an already-accepted message are never adopted.
+                ctx.challenge_counters = None
+        elif avg_score >= SUSPICION_THRESHOLD:
             # Normal - authenticated
             if ctx.state != AuthState.AUTHENTICATED:
                 ctx.state = AuthState.AUTHENTICATED
@@ -166,11 +239,11 @@ class AuthEngine:
             elif ctx.state == AuthState.SUSPECT:
                 ctx.suspect_count += 1
                 if ctx.suspect_count >= SUSPECT_PATIENCE:
-                    challenge = self._issue_challenge(ctx)
+                    challenge = self._issue_challenge(ctx, telemetry)
         else:
             # Below challenge threshold - immediate challenge
             if ctx.state != AuthState.CHALLENGED:
-                challenge = self._issue_challenge(ctx)
+                challenge = self._issue_challenge(ctx, telemetry)
 
         # Update baseline only when device remains authenticated AND
         # the instantaneous score is healthy (prevents anomalous values
@@ -179,7 +252,7 @@ class AuthEngine:
                 score >= SUSPICION_THRESHOLD):
             self._update_baseline(ctx, telemetry)
 
-        return self._result(ctx, score, avg_score, features, "ok",
+        return self._result(ctx, score, avg_score, features, status,
                             challenge=challenge)
 
     def verify_challenge_response(self, device_id: str,
@@ -198,7 +271,12 @@ class AuthEngine:
 
         if time.time() > ctx.challenge_deadline:
             ctx.challenge_failures += 1
-            ctx.state = AuthState.SUSPECT
+            if ctx.challenge_failures >= MAX_CHALLENGE_FAILURES:
+                ctx.state = AuthState.REJECTED
+                ctx.pending_nonce = None
+                ctx.challenge_deadline = 0.0
+            else:
+                self._issue_challenge(ctx)
             return False
 
         # Compute expected HMAC
@@ -214,8 +292,23 @@ class AuthEngine:
             # Success - restore authenticated state
             ctx.state = AuthState.AUTHENTICATED
             ctx.suspect_count = 0
+            ctx.challenge_failures = 0
             ctx.pending_nonce = None
+            ctx.challenge_deadline = 0.0
             ctx.state_changed_ts = time.time()
+            # The device proved key possession in the context it reported
+            # when challenged; offer that context for re-enrollment.
+            if (REENROLL_AFTER_VERIFICATION and
+                    ctx.challenge_context is not None and
+                    ctx.challenge_context != self._baseline_context(ctx)):
+                ctx.candidate_context = ctx.challenge_context
+            ctx.challenge_context = None
+            # Resynchronize continuity to the genuine message that received
+            # the nonce (e.g. after a reboot that was not observed because
+            # the network was down).
+            if ctx.challenge_counters is not None:
+                ctx.prev_seq, ctx.prev_uptime = ctx.challenge_counters
+                ctx.challenge_counters = None
             # Partial window reset to accelerate trust recovery
             if len(ctx.score_window) > 2:
                 recent = list(ctx.score_window)[-2:]
@@ -227,12 +320,60 @@ class AuthEngine:
             ctx.challenge_failures += 1
             if ctx.challenge_failures >= MAX_CHALLENGE_FAILURES:
                 ctx.state = AuthState.REJECTED
-            else:
-                ctx.state = AuthState.SUSPECT
-            ctx.pending_nonce = None
+                ctx.pending_nonce = None
+                ctx.challenge_deadline = 0.0
+            # Before the failure limit, retain the pending nonce and the
+            # Challenged state so that ordinary telemetry cannot restore trust.
             return False
 
     # ─── Private helpers ─────────────────────────────────────────────────
+
+    def _continuity_event(self, ctx: DeviceContext,
+                          telemetry: dict) -> Optional[str]:
+        """Classify sequence and uptime discontinuities before state updates."""
+        if ctx.prev_seq is None or ctx.prev_uptime is None:
+            return None
+
+        seq = telemetry.get("seq", 0)
+        uptime = telemetry.get("uptime_ms", 0)
+        # An exact repeat of an accepted message is a replay even when its
+        # sequence number exceeds the current one (e.g. a message captured
+        # before a reboot and replayed after it).
+        if (seq, uptime) in ctx.seen_messages:
+            return "replay"
+        if seq <= ctx.prev_seq:
+            if uptime < ctx.prev_uptime:
+                return "reboot"
+            return "replay"
+        return None
+
+    @staticmethod
+    def _network_context(telemetry: dict) -> Optional[tuple]:
+        """Discrete network context, or None when the network is unusable."""
+        if telemetry.get("internet_state") != 2:
+            return None
+        return (
+            telemetry.get("wifi_bssid_hash", ""),
+            telemetry.get("channel", 0),
+            telemetry.get("dns1", ""),
+            telemetry.get("dns2", ""),
+        )
+
+    @staticmethod
+    def _baseline_context(ctx: DeviceContext) -> tuple:
+        return (ctx.baseline_bssid, ctx.baseline_channel,
+                ctx.baseline_dns1, ctx.baseline_dns2)
+
+    @staticmethod
+    def _adopt_context(ctx: DeviceContext, telemetry: dict) -> None:
+        """Re-enroll the network context confirmed after verification."""
+        ctx.baseline_bssid = telemetry.get("wifi_bssid_hash", "")
+        ctx.baseline_channel = telemetry.get("channel", 0)
+        ctx.baseline_dns1 = telemetry.get("dns1", "")
+        ctx.baseline_dns2 = telemetry.get("dns2", "")
+        ctx.baseline_rssi = telemetry.get("rssi_dbm", ctx.baseline_rssi)
+        ctx.baseline_latency = telemetry.get("latency_ms",
+                                             ctx.baseline_latency)
 
     def _compute_features(self, ctx: DeviceContext,
                           telemetry: dict) -> Dict[str, float]:
@@ -364,8 +505,13 @@ class AuthEngine:
             ctx.baseline_dns1 = telemetry.get("dns1", ctx.baseline_dns1)
             ctx.baseline_dns2 = telemetry.get("dns2", ctx.baseline_dns2)
 
-    def _issue_challenge(self, ctx: DeviceContext) -> dict:
+    def _issue_challenge(self, ctx: DeviceContext,
+                         telemetry: Optional[dict] = None) -> dict:
         """Generate a cryptographic challenge nonce."""
+        if telemetry is not None:
+            ctx.challenge_context = self._network_context(telemetry)
+            ctx.challenge_counters = (telemetry.get("seq"),
+                                      telemetry.get("uptime_ms"))
         nonce = secrets.token_hex(16)
         ctx.state = AuthState.CHALLENGED
         ctx.pending_nonce = nonce
