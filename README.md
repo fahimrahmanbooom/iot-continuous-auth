@@ -2,7 +2,7 @@
 
 Source code and experimental datasets for the paper:
 
-> **Continuous Authentication Framework for IoT Devices**
+> **A Multi-Context Continuous Authentication Framework for Resource-Constrained IoT Devices Using Telemetry-Based Scoring and Dynamic Re-Verification**
 > Fahim Rahman, Manesh Thankappan, Danial Javaheri, Muhsin Hassanu, Raja Ujjan
 > *Sensors*, MDPI, 2026.
 
@@ -155,7 +155,7 @@ If you use this code or dataset in your research, please cite:
 
 ```bibtex
 @article{rahman2026continuous,
-  title={Continuous Authentication Framework for IoT Devices},
+  title={A Multi-Context Continuous Authentication Framework for Resource-Constrained IoT Devices Using Telemetry-Based Scoring and Dynamic Re-Verification},
   author={Rahman, Fahim and Thankappan, Manesh and Javaheri, Danial and Hassanu, Muhsin and Ujjan, Raja},
   journal={Sensors},
   year={2026},
